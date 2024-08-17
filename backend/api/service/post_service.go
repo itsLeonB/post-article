@@ -15,6 +15,7 @@ type PostService interface {
 	GetAll(context.Context) ([]*dto.PostResponse, error)
 	GetByID(context.Context, int64) (*dto.PostResponse, error)
 	Insert(context.Context, *dto.NewPostRequest) (*dto.PostResponse, error)
+	Update(context.Context, *dto.UpdatePostRequest) (*dto.PostResponse, error)
 }
 
 type postServiceImpl struct {
@@ -80,4 +81,37 @@ func (s *postServiceImpl) Insert(ctx context.Context, newPost *dto.NewPostReques
 	}
 
 	return creatingPost.ToResponse(), nil
+}
+
+func (s *postServiceImpl) Update(ctx context.Context, updatePost *dto.UpdatePostRequest) (*dto.PostResponse, error) {
+	ctx, err := s.trx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer s.trx.Rollback(ctx)
+
+	updatingPost := entity.Post{
+		ID:       updatePost.ID,
+		Title:    updatePost.Title,
+		Content:  updatePost.Content,
+		Category: updatePost.Category,
+		StatusID: updatePost.StatusID,
+	}
+
+	err = s.postRepo.Update(ctx, &updatingPost)
+	if err != nil {
+		return nil, apperror.NewError(
+			err,
+			postSvcFile,
+			fmt.Sprintf("postServiceImpl.Update(%v)", *updatePost),
+			"s.postRepo.Update()",
+		)
+	}
+
+	err = s.trx.Commit(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatingPost.ToResponse(), nil
 }

@@ -14,6 +14,7 @@ type PostRepository interface {
 	GetAll(context.Context) ([]*entity.Post, error)
 	GetByID(context.Context, int64) (*entity.Post, error)
 	Insert(context.Context, *entity.Post) error
+	Update(context.Context, *entity.Post) error
 }
 
 type postRepositoryImpl struct {
