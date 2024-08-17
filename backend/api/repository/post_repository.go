@@ -46,7 +46,7 @@ func (r *postRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Post, error)
 	offset := ctx.Value(appcontext.KeyOffset).(int64)
 	statusID := ctx.Value(appcontext.KeyStatusID).(int64)
 	if statusID != 0 {
-		query += fmt.Sprintf(" WHERE status_id = %d", offset)
+		query += fmt.Sprintf(" WHERE status_id = %d", statusID)
 	}
 	query += " ORDER BY updated_date DESC"
 	if limit != 0 {
