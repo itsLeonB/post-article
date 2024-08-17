@@ -2,14 +2,12 @@ package service
 
 import (
 	"context"
-	"fmt"
-	"post-api/apperror"
 	"post-api/dto"
 	"post-api/entity"
 	"post-api/repository"
 )
 
-const postSvcFile = "post_service.go"
+// const postSvcFile = "post_service.go"
 
 type PostService interface {
 	GetAll(context.Context) ([]*dto.PostResponse, error)
@@ -67,12 +65,7 @@ func (s *postServiceImpl) Insert(ctx context.Context, newPost *dto.NewPostReques
 
 	err = s.postRepo.Insert(ctx, &creatingPost)
 	if err != nil {
-		return nil, apperror.NewError(
-			err,
-			postSvcFile,
-			fmt.Sprintf("postServiceImpl.Insert(%v)", *newPost),
-			"s.postRepo.Insert()",
-		)
+		return nil, err
 	}
 
 	err = s.trx.Commit(ctx)
@@ -100,12 +93,7 @@ func (s *postServiceImpl) Update(ctx context.Context, updatePost *dto.UpdatePost
 
 	err = s.postRepo.Update(ctx, &updatingPost)
 	if err != nil {
-		return nil, apperror.NewError(
-			err,
-			postSvcFile,
-			fmt.Sprintf("postServiceImpl.Update(%v)", *updatePost),
-			"s.postRepo.Update()",
-		)
+		return nil, err
 	}
 
 	err = s.trx.Commit(ctx)
@@ -114,4 +102,24 @@ func (s *postServiceImpl) Update(ctx context.Context, updatePost *dto.UpdatePost
 	}
 
 	return updatingPost.ToResponse(), nil
+}
+
+func (s *postServiceImpl) Delete(ctx context.Context, id int64) error {
+	ctx, err := s.trx.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer s.trx.Rollback(ctx)
+
+	err = s.postRepo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	err = s.trx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
