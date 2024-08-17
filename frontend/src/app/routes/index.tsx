@@ -38,6 +38,19 @@ export const createRouter = () =>
           )
         };
       }
+    },
+    {
+      path: '/preview',
+      lazy: async () => {
+        const { Preview } = await import('./Preview');
+        return {
+          Component: () => (
+            <Layout>
+              <Preview />
+            </Layout>
+          )
+        };
+      }
     }
   ]);
 
