@@ -144,8 +144,7 @@ func (r *postRepositoryImpl) Insert(ctx context.Context, newPost *entity.Post) e
 
 	sql := `
 		INSERT INTO posts (title, content, category, status_id)
-		VALUES (?, ?, ?, ?)
-		RETURNING id, created_date, updated_date
+		VALUES (?, ?, ?, ?);
 	`
 
 	stmt, err := dbtx.PrepareContext(ctx, sql)
@@ -159,15 +158,11 @@ func (r *postRepositoryImpl) Insert(ctx context.Context, newPost *entity.Post) e
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx,
+	_, err = stmt.ExecContext(ctx,
 		newPost.Title,
 		newPost.Content,
 		newPost.Category,
 		newPost.StatusID,
-	).Scan(
-		&newPost.ID,
-		&newPost.CreatedDate,
-		&newPost.UpdatedDate,
 	)
 	if err != nil {
 		return apperror.NewError(

@@ -17,8 +17,9 @@ type handlers struct {
 }
 
 func SetupHandlers(db *sql.DB) *handlers {
+	trx := repository.NewTransactor(db)
 	repo := repository.NewPostRepository(db)
-	svc := service.NewPostService(repo)
+	svc := service.NewPostService(trx, repo)
 
 	return &handlers{
 		postHandler: handler.NewPostHandler(svc),
@@ -32,6 +33,7 @@ func SetupRouter(handlers *handlers) http.Handler {
 
 	r.GET("/article", handlers.postHandler.GetAll())
 	r.GET("/article/:id", handlers.postHandler.GetByID())
+	r.POST("/article", handlers.postHandler.Insert())
 
 	return r
 }
