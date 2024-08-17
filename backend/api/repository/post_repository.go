@@ -169,7 +169,49 @@ func (r *postRepositoryImpl) Insert(ctx context.Context, newPost *entity.Post) e
 			err,
 			postRepoFile,
 			fmt.Sprintf("postRepositoryImpl.Insert(%v)", *newPost),
-			"dbtx.QueryRowContext().Scan()",
+			"dbtx.ExecContext()",
+		)
+	}
+
+	return nil
+}
+
+func (r *postRepositoryImpl) Update(ctx context.Context, editingPost *entity.Post) error {
+	dbtx, err := r.getDBTX(ctx)
+	if err != nil {
+		return err
+	}
+
+	sql := `
+		UPDATE posts
+		SET title = ?, content = ?, category = ?, status_id = ?, updated_date = NOW()
+		WHERE id = ?
+	`
+
+	stmt, err := dbtx.PrepareContext(ctx, sql)
+	if err != nil {
+		return apperror.NewError(
+			err,
+			postRepoFile,
+			fmt.Sprintf("postRepositoryImpl.Update(%v)", *editingPost),
+			"dbtx.PrepareContext()",
+		)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx,
+		editingPost.Title,
+		editingPost.Content,
+		editingPost.Category,
+		editingPost.StatusID,
+		editingPost.ID,
+	)
+	if err != nil {
+		return apperror.NewError(
+			err,
+			postRepoFile,
+			fmt.Sprintf("postRepositoryImpl.Update(%v)", *editingPost),
+			"dbtx.ExecContext()",
 		)
 	}
 
