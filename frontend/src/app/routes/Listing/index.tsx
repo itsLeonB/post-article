@@ -4,17 +4,24 @@ import { useAppSelector } from '../../../hooks/useAppSelector';
 import { fetchPosts } from '../../../store/thunks/postListThunk';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import { fetchPostStatuses } from '../../../store/thunks/postStatusThunk';
 
 const Listing: React.FC = () => {
   const dispatch = useAppDispatch();
   const { data, status, error } = useAppSelector((state) => state.postList);
-  const statuses = ['publish', 'draft', 'thrash'];
+  const postStatusState = useAppSelector((state) => state.postStatus);
 
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchPosts());
     }
   }, [status, dispatch]);
+
+  useEffect(() => {
+    if (postStatusState.status === 'idle') {
+      dispatch(fetchPostStatuses());
+    }
+  }, [postStatusState.status, dispatch]);
 
   if (status === 'loading') {
     return <h1>Loading...</h1>;
@@ -28,13 +35,13 @@ const Listing: React.FC = () => {
     <main>
       <Tabs>
         <TabList>
-          <Tab>Published</Tab>
-          <Tab>Draft</Tab>
-          <Tab>Trashed</Tab>
+          {postStatusState.data.map((status) => {
+            return <Tab key={status.id}>{status.name}</Tab>;
+          })}
         </TabList>
-        {statuses.map((status) => {
+        {postStatusState.data.map((status) => {
           return (
-            <TabPanel>
+            <TabPanel key={status.id}>
               <table>
                 <thead>
                   <tr>
@@ -52,14 +59,17 @@ const Listing: React.FC = () => {
                 <tbody>
                   {data
                     .filter((item) => {
-                      return item.status === status;
+                      return item.status_id === status.id;
                     })
                     .map((post) => {
                       return (
                         <tr key={post.title}>
                           <td>{post.title}</td>
                           <td>{post.category}</td>
-                          <td></td>
+                          <td>
+                            <button>Edit</button>
+                            <button>Trash</button>
+                          </td>
                         </tr>
                       );
                     })}
