@@ -73,3 +73,41 @@ func (h *PostHandler) Insert() gin.HandlerFunc {
 		ctx.JSON(http.StatusCreated, dto.NewSuccessResponse(createdPost))
 	}
 }
+
+func (h *PostHandler) Update() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		updatePost := new(dto.UpdatePostRequest)
+		err := ctx.ShouldBindJSON(updatePost)
+		if err != nil {
+			_ = ctx.Error(apperror.NewError(
+				err,
+				postHandlerFile,
+				"PostHandler.Update()",
+				"ctx.ShouldBindJSON()",
+			))
+			return
+		}
+
+		id, err := GetPathID(ctx)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		updatePost.ID = id
+
+		_, err = h.postSvc.GetByID(ctx, id)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		updatedPost, err := h.postSvc.Update(ctx, updatePost)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, dto.NewSuccessResponse(updatedPost))
+	}
+}
