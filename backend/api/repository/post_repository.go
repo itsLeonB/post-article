@@ -15,6 +15,7 @@ type PostRepository interface {
 	GetByID(context.Context, int64) (*entity.Post, error)
 	Insert(context.Context, *entity.Post) error
 	Update(context.Context, *entity.Post) error
+	Delete(context.Context, int64) error
 }
 
 type postRepositoryImpl struct {
@@ -212,6 +213,41 @@ func (r *postRepositoryImpl) Update(ctx context.Context, editingPost *entity.Pos
 			err,
 			postRepoFile,
 			fmt.Sprintf("postRepositoryImpl.Update(%v)", *editingPost),
+			"dbtx.ExecContext()",
+		)
+	}
+
+	return nil
+}
+
+func (r *postRepositoryImpl) Delete(ctx context.Context, id int64) error {
+	dbtx, err := r.getDBTX(ctx)
+	if err != nil {
+		return err
+	}
+
+	sql := `
+		DELETE FROM posts
+		WHERE id = ?
+	`
+
+	stmt, err := dbtx.PrepareContext(ctx, sql)
+	if err != nil {
+		return apperror.NewError(
+			err,
+			postRepoFile,
+			fmt.Sprintf("postRepositoryImpl.Delete(%d", id),
+			"dbtx.PrepareContext()",
+		)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, id)
+	if err != nil {
+		return apperror.NewError(
+			err,
+			postRepoFile,
+			fmt.Sprintf("postRepositoryImpl.Delete(%d)", id),
 			"dbtx.ExecContext()",
 		)
 	}
