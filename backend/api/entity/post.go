@@ -13,14 +13,14 @@ type Post struct {
 	CreatedDate time.Time
 	UpdatedDate time.Time
 	StatusID    int64
-	Status      string
 }
 
 func (p *Post) ToResponse() *dto.PostResponse {
 	return &dto.PostResponse{
+		ID:       p.ID,
 		Title:    p.Title,
 		Content:  p.Content,
 		Category: p.Category,
-		Status:   p.Status,
+		StatusID: p.StatusID,
 	}
 }

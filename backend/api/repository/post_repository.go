@@ -29,15 +29,15 @@ func NewPostRepository(db *sql.DB) *postRepositoryImpl {
 func (r *postRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Post, error) {
 	sql := `
 		SELECT
-			posts.id,
-			posts.title,
-			posts.content,
-			posts.category,
-			posts.created_date,
-			posts.updated_date,
-			posts.status_id,
-			post_statuses.name
-		FROM posts JOIN post_statuses ON posts.status_id = post_statuses.id
+			id,
+			title,
+			content,
+			category,
+			created_date,
+			updated_date,
+			status_id
+		FROM posts
+		ORDER BY updated_date DESC
 	`
 
 	stmt, err := r.db.PrepareContext(ctx, sql)
@@ -72,7 +72,6 @@ func (r *postRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Post, error)
 			&post.CreatedDate,
 			&post.UpdatedDate,
 			&post.StatusID,
-			&post.Status,
 		)
 		if err != nil {
 			return nil, apperror.NewError(
@@ -92,16 +91,15 @@ func (r *postRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Post, error)
 func (r *postRepositoryImpl) GetByID(ctx context.Context, id int64) (*entity.Post, error) {
 	sql := `
 		SELECT
-			posts.id,
-			posts.title,
-			posts.content,
-			posts.category,
-			posts.created_date,
-			posts.updated_date,
-			posts.status_id,
-			post_statuses.name
-		FROM posts JOIN post_statuses ON posts.status_id = post_statuses.id
-		WHERE posts.id = ?
+			id,
+			title,
+			content,
+			category,
+			created_date,
+			updated_date,
+			status_id
+		FROM posts
+		WHERE id = ?
 	`
 
 	stmt, err := r.db.PrepareContext(ctx, sql)
@@ -124,7 +122,6 @@ func (r *postRepositoryImpl) GetByID(ctx context.Context, id int64) (*entity.Pos
 		&post.CreatedDate,
 		&post.UpdatedDate,
 		&post.StatusID,
-		&post.Status,
 	)
 	if err != nil {
 		return nil, apperror.NewError(
@@ -146,7 +143,7 @@ func (r *postRepositoryImpl) Insert(ctx context.Context, newPost *entity.Post) e
 
 	sql := `
 		INSERT INTO posts (title, content, category, status_id)
-		VALUES (?, ?, ?, ?);
+		VALUES (?, ?, ?, ?)
 	`
 
 	stmt, err := dbtx.PrepareContext(ctx, sql)
@@ -160,7 +157,7 @@ func (r *postRepositoryImpl) Insert(ctx context.Context, newPost *entity.Post) e
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx,
+	row, err := stmt.ExecContext(ctx,
 		newPost.Title,
 		newPost.Content,
 		newPost.Category,
@@ -174,6 +171,18 @@ func (r *postRepositoryImpl) Insert(ctx context.Context, newPost *entity.Post) e
 			"dbtx.ExecContext()",
 		)
 	}
+
+	id, err := row.LastInsertId()
+	if err != nil {
+		return apperror.NewError(
+			err,
+			postRepoFile,
+			fmt.Sprintf("postRepositoryImpl.Insert(%v)", *newPost),
+			"row.LastInsertId()",
+		)
+	}
+
+	newPost.ID = id
 
 	return nil
 }

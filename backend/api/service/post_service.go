@@ -92,6 +92,11 @@ func (s *postServiceImpl) Update(ctx context.Context, updatePost *dto.UpdatePost
 		StatusID: updatePost.StatusID,
 	}
 
+	_, err = s.postRepo.GetByID(ctx, updatingPost.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	err = s.postRepo.Update(ctx, &updatingPost)
 	if err != nil {
 		return nil, err

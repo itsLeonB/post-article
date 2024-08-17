@@ -1,10 +1,11 @@
 package dto
 
 type PostResponse struct {
+	ID       int64  `json:"id"`
 	Title    string `json:"title"`
 	Content  string `json:"content"`
 	Category string `json:"category"`
-	Status   string `json:"status"`
+	StatusID int64  `json:"status_id"`
 }
 
 type NewPostRequest struct {

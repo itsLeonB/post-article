@@ -96,12 +96,6 @@ func (h *PostHandler) Update() gin.HandlerFunc {
 
 		updatePost.ID = id
 
-		_, err = h.postSvc.GetByID(ctx, id)
-		if err != nil {
-			_ = ctx.Error(err)
-			return
-		}
-
 		updatedPost, err := h.postSvc.Update(ctx, updatePost)
 		if err != nil {
 			_ = ctx.Error(err)
