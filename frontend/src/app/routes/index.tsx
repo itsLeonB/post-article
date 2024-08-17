@@ -5,6 +5,13 @@ export const createRouter = () =>
   createBrowserRouter([
     {
       path: '/',
-      Component: () => <Listing />
+      element: <Listing />
+    },
+    {
+      path: '/:id',
+      lazy: async () => {
+        const { Edit } = await import('./Edit');
+        return { Component: () => <Edit /> };
+      }
     }
   ]);
