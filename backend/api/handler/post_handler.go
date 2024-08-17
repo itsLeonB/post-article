@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"net/http"
+	"post-api/appcontext"
 	"post-api/apperror"
 	"post-api/dto"
 	"post-api/service"
@@ -21,7 +23,22 @@ func NewPostHandler(ps service.PostService) *PostHandler {
 
 func (h *PostHandler) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		posts, err := h.postSvc.GetAll(ctx)
+		limit, err := QueryNumeric(ctx, "limit", 0)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		offset, err := QueryNumeric(ctx, "offset", 0)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		pageCtx := context.WithValue(ctx, appcontext.KeyLimit, limit)
+		pageCtx = context.WithValue(pageCtx, appcontext.KeyOffset, offset)
+
+		posts, err := h.postSvc.GetAll(pageCtx)
 		if err != nil {
 			_ = ctx.Error(err)
 			return

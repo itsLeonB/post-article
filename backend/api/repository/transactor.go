@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"post-api/appcontext"
 	"post-api/apperror"
 )
 
@@ -41,7 +42,7 @@ func (r *transactor) Begin(ctx context.Context) (context.Context, error) {
 		)
 	}
 
-	return context.WithValue(ctx, KeyTx, tx), nil
+	return context.WithValue(ctx, appcontext.KeyTx, tx), nil
 }
 
 func (r *transactor) Commit(ctx context.Context) error {
@@ -85,7 +86,7 @@ func (r *transactor) Rollback(ctx context.Context) error {
 }
 
 func GetTxFromContext(ctx context.Context) (*sql.Tx, error) {
-	trx := ctx.Value(KeyTx)
+	trx := ctx.Value(appcontext.KeyTx)
 	if trx != nil {
 		tx, ok := trx.(*sql.Tx)
 		if !ok {

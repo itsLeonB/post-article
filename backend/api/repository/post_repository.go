@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"post-api/appcontext"
 	"post-api/apperror"
 	"post-api/entity"
 )
@@ -28,7 +29,7 @@ func NewPostRepository(db *sql.DB) *postRepositoryImpl {
 }
 
 func (r *postRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Post, error) {
-	sql := `
+	query := `
 		SELECT
 			id,
 			title,
@@ -41,13 +42,22 @@ func (r *postRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Post, error)
 		ORDER BY updated_date DESC
 	`
 
-	stmt, err := r.db.PrepareContext(ctx, sql)
+	limit := ctx.Value(appcontext.KeyLimit).(int64)
+	offset := ctx.Value(appcontext.KeyOffset).(int64)
+	if limit != 0 {
+		query += fmt.Sprintf(" LIMIT %d", limit)
+	}
+	if offset != 0 {
+		query += fmt.Sprintf(" OFFSET %d", offset)
+	}
+
+	stmt, err := r.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, apperror.NewError(
 			err,
 			postRepoFile,
 			"postRepositoryImpl.GetAll()",
-			fmt.Sprintf("r.db.PrepareContext(%s)", sql),
+			fmt.Sprintf("r.db.PrepareContext(%s)", query),
 		)
 	}
 	defer stmt.Close()
