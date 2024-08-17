@@ -14,7 +14,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  margin: 0 8%;
+  width: 100vw;
+
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+  margin: 0%;
+  padding: 0%;
 }
 
 a {
@@ -28,9 +33,9 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
+  margin: 6%;
+  /* display: flex; */
+  /* place-items: center; */
   min-width: 320px;
   min-height: 100vh;
 }

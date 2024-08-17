@@ -1,11 +1,17 @@
 import { createBrowserRouter } from 'react-router-dom';
 import Listing from './Listing';
+import { ReactElement } from 'react';
+import Navbar from '../../components/Navbar';
 
 export const createRouter = () =>
   createBrowserRouter([
     {
       path: '/',
-      element: <Listing />
+      element: (
+        <Layout>
+          <Listing />
+        </Layout>
+      )
     },
     {
       path: '/:id',
@@ -15,3 +21,16 @@ export const createRouter = () =>
       }
     }
   ]);
+
+type LayoutProps = {
+  children: ReactElement;
+};
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  );
+};
