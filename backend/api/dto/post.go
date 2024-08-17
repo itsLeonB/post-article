@@ -25,5 +25,5 @@ type UpdatePostRequest struct {
 
 type PostStatusResponse struct {
 	ID   int64  `json:"id"`
-	Name string `json:"string"`
+	Name string `json:"name"`
 }
