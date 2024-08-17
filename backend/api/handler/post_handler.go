@@ -111,3 +111,21 @@ func (h *PostHandler) Update() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, dto.NewSuccessResponse(updatedPost))
 	}
 }
+
+func (h *PostHandler) Delete() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := GetPathID(ctx)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		err = h.postSvc.Delete(ctx, id)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusNoContent, nil)
+	}
+}

@@ -14,6 +14,7 @@ type PostService interface {
 	GetByID(context.Context, int64) (*dto.PostResponse, error)
 	Insert(context.Context, *dto.NewPostRequest) (*dto.PostResponse, error)
 	Update(context.Context, *dto.UpdatePostRequest) (*dto.PostResponse, error)
+	Delete(context.Context, int64) error
 }
 
 type postServiceImpl struct {
@@ -110,6 +111,11 @@ func (s *postServiceImpl) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 	defer s.trx.Rollback(ctx)
+
+	_, err = s.postRepo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
 
 	err = s.postRepo.Delete(ctx, id)
 	if err != nil {
