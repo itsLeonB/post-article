@@ -13,6 +13,7 @@ const postRepoFile = "post_repository.go"
 type PostRepository interface {
 	GetAll(context.Context) ([]*entity.Post, error)
 	GetByID(context.Context, int64) (*entity.Post, error)
+	Insert(context.Context, *entity.Post) error
 }
 
 type postRepositoryImpl struct {
@@ -133,4 +134,61 @@ func (r *postRepositoryImpl) GetByID(ctx context.Context, id int64) (*entity.Pos
 	}
 
 	return post, nil
+}
+
+func (r *postRepositoryImpl) Insert(ctx context.Context, newPost *entity.Post) error {
+	dbtx, err := r.getDBTX(ctx)
+	if err != nil {
+		return err
+	}
+
+	sql := `
+		INSERT INTO posts (title, content, category, status_id)
+		VALUES (?, ?, ?, ?)
+		RETURNING id, created_date, updated_date
+	`
+
+	stmt, err := dbtx.PrepareContext(ctx, sql)
+	if err != nil {
+		return apperror.NewError(
+			err,
+			postRepoFile,
+			fmt.Sprintf("postRepositoryImpl.Insert(%v)", *newPost),
+			"dbtx.PrepareContext()",
+		)
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRowContext(ctx,
+		newPost.Title,
+		newPost.Content,
+		newPost.Category,
+		newPost.StatusID,
+	).Scan(
+		&newPost.ID,
+		&newPost.CreatedDate,
+		&newPost.UpdatedDate,
+	)
+	if err != nil {
+		return apperror.NewError(
+			err,
+			postRepoFile,
+			fmt.Sprintf("postRepositoryImpl.Insert(%v)", *newPost),
+			"dbtx.QueryRowContext().Scan()",
+		)
+	}
+
+	return nil
+}
+
+func (r *postRepositoryImpl) getDBTX(ctx context.Context) (DBTX, error) {
+	tx, err := GetTxFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if tx != nil {
+		return tx, nil
+	}
+
+	return r.db, nil
 }
