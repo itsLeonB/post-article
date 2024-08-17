@@ -19,6 +19,13 @@ export const createRouter = () =>
         const { Edit } = await import('./Edit');
         return { Component: () => <Edit /> };
       }
+    },
+    {
+      path: '/new',
+      lazy: async () => {
+        const { New } = await import('./New');
+        return { Component: () => <New /> };
+      }
     }
   ]);
 
