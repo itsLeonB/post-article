@@ -29,6 +29,7 @@ func SetupRouter(handlers *handlers) http.Handler {
 	r.Use(middleware.Error())
 
 	r.GET("/article", handlers.postHandler.GetAll())
+	r.GET("/article/:id", handlers.postHandler.GetByID())
 
 	return r
 }
