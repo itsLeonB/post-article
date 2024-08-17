@@ -20,11 +20,29 @@ func (h *PostHandler) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		posts, err := h.postSvc.GetAll(ctx)
 		if err != nil {
-			ctx.Error(err)
+			_ = ctx.Error(err)
 			return
 		}
 
 		ctx.JSON(http.StatusOK, dto.NewSuccessResponse(posts))
 	}
 
+}
+
+func (h *PostHandler) GetByID() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := GetPathID(ctx)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		post, err := h.postSvc.GetByID(ctx, id)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, dto.NewSuccessResponse(post))
+	}
 }
