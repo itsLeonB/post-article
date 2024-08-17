@@ -1,0 +1,18 @@
+CREATE DATABASE IF NOT EXISTS posts_db;
+
+USE posts_db;
+
+CREATE TABLE IF NOT EXISTS post_statuses (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    created_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    status_id BIGINT REFERENCES post_statuses (id)
+);
