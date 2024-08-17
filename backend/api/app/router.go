@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"net/http"
+	"os"
 	"post-api/handler"
 	"post-api/middleware"
 	"post-api/repository"
@@ -25,6 +26,7 @@ func SetupHandlers(db *sql.DB) *handlers {
 }
 
 func SetupRouter(handlers *handlers) http.Handler {
+	gin.SetMode(os.Getenv("APP_ENV"))
 	r := gin.Default()
 	r.Use(middleware.Error())
 

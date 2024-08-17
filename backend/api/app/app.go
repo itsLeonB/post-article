@@ -29,6 +29,7 @@ func (a *app) Serve() {
 		Handler: a.router,
 	}
 
+	log.Printf("server listening on %s\n", server.Addr)
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatalf("error server listen and serve: %s", err.Error())
