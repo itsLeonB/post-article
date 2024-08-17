@@ -23,6 +23,12 @@ This project is built using:
 -   Gin v1.10.0
 -   Go MySQL Driver v1.8.1
 
+### Frontend
+
+-   TypeScript
+-   React
+-   Vite
+
 ## Installation
 
 ### Backend
@@ -52,3 +58,33 @@ This project is built using:
 6. (optional) Run the file `/backend/db/seed/example.sql` with your favorite DB connection driver for seeding example data.
 
 7. Serve the app with `go run .`
+
+### Frontend
+
+1. Clone the project and change directory to frontend.
+
+    ```sh
+    cd frontend
+    ```
+
+2. Install dependencies with npm
+
+    ```sh
+    npm install
+    ```
+
+3. Generate a new .env file
+
+    ```sh
+    cp .env.example .env
+    ```
+
+4. Change the VITE_BASE_URL value according to the backend `BASE_URL`
+
+5. Start the server or build to static files
+
+    ```sh
+    npm run dev # for running the server
+    # or
+    npm run build # for building the project
+    ```
