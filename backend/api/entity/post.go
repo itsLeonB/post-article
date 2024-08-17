@@ -24,3 +24,15 @@ func (p *Post) ToResponse() *dto.PostResponse {
 		StatusID: p.StatusID,
 	}
 }
+
+type PostStatus struct {
+	ID   int64
+	Name string
+}
+
+func (ps *PostStatus) ToResponse() *dto.PostStatusResponse {
+	return &dto.PostStatusResponse{
+		ID:   ps.ID,
+		Name: ps.Name,
+	}
+}

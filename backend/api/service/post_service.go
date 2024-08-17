@@ -15,6 +15,7 @@ type PostService interface {
 	Insert(context.Context, *dto.NewPostRequest) (*dto.PostResponse, error)
 	Update(context.Context, *dto.UpdatePostRequest) (*dto.PostResponse, error)
 	Delete(context.Context, int64) error
+	GetStatus(context.Context) ([]*dto.PostStatusResponse, error)
 }
 
 type postServiceImpl struct {
@@ -133,4 +134,19 @@ func (s *postServiceImpl) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func (s *postServiceImpl) GetStatus(ctx context.Context) ([]*dto.PostStatusResponse, error) {
+	statuses, err := s.postRepo.GetStatus(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	statusResponses := []*dto.PostStatusResponse{}
+	for _, status := range statuses {
+		statusResponse := status.ToResponse()
+		statusResponses = append(statusResponses, statusResponse)
+	}
+
+	return statusResponses, nil
 }

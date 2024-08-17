@@ -36,6 +36,7 @@ func SetupRouter(handlers *handlers) http.Handler {
 	r.POST("/article", handlers.postHandler.Insert())
 	r.PUT("/article/:id", handlers.postHandler.Update())
 	r.DELETE("/article/:id", handlers.postHandler.Delete())
+	r.GET("/article-statuses", handlers.postHandler.GetStatus())
 
 	return r
 }

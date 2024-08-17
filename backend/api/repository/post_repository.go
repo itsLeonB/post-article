@@ -16,6 +16,7 @@ type PostRepository interface {
 	Insert(context.Context, *entity.Post) error
 	Update(context.Context, *entity.Post) error
 	Delete(context.Context, int64) error
+	GetStatus(context.Context) ([]*entity.PostStatus, error)
 }
 
 type postRepositoryImpl struct {
@@ -262,6 +263,51 @@ func (r *postRepositoryImpl) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func (r *postRepositoryImpl) GetStatus(ctx context.Context) ([]*entity.PostStatus, error) {
+	query := `
+		SELECT id, name
+		FROM post_statuses
+	`
+
+	stmt, err := r.db.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, apperror.NewError(
+			err,
+			postRepoFile,
+			"postRepositoryImpl.GetStatus()",
+			fmt.Sprintf("dbtx.PrepareContext(%s)", query),
+		)
+	}
+
+	statuses := []*entity.PostStatus{}
+
+	rows, err := stmt.QueryContext(ctx)
+	if err != nil {
+		return nil, apperror.NewError(
+			err,
+			postRepoFile,
+			"postRepositoryImpl.GetStatus()",
+			"stmt.QueryRowContext()",
+		)
+	}
+
+	for rows.Next() {
+		status := new(entity.PostStatus)
+		err = rows.Scan(&status.ID, &status.Name)
+		if err != nil {
+			return nil, apperror.NewError(
+				err,
+				postRepoFile,
+				"postRepositoryImpl.GetStatus()",
+				"rows.Scan()",
+			)
+		}
+		statuses = append(statuses, status)
+	}
+
+	return statuses, nil
 }
 
 func (r *postRepositoryImpl) getDBTX(ctx context.Context) (DBTX, error) {

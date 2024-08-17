@@ -123,3 +123,15 @@ func (h *PostHandler) Delete() gin.HandlerFunc {
 		ctx.JSON(http.StatusNoContent, nil)
 	}
 }
+
+func (h *PostHandler) GetStatus() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		statuses, err := h.postSvc.GetStatus(ctx)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, dto.NewSuccessResponse(statuses))
+	}
+}

@@ -22,3 +22,8 @@ type UpdatePostRequest struct {
 	Category string `json:"category" binding:"required,min=3,max=100"`
 	StatusID int64  `json:"status_id" binding:"required,numeric,min=1"`
 }
+
+type PostStatusResponse struct {
+	ID   int64  `json:"id"`
+	Name string `json:"string"`
+}
