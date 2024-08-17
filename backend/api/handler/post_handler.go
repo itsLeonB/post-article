@@ -35,8 +35,15 @@ func (h *PostHandler) GetAll() gin.HandlerFunc {
 			return
 		}
 
+		statusID, err := QueryNumeric(ctx, "status_id", 0)
+		if err != nil {
+			_ = ctx.Error(err)
+			return
+		}
+
 		pageCtx := context.WithValue(ctx, appcontext.KeyLimit, limit)
 		pageCtx = context.WithValue(pageCtx, appcontext.KeyOffset, offset)
+		pageCtx = context.WithValue(pageCtx, appcontext.KeyStatusID, statusID)
 
 		posts, err := h.postSvc.GetAll(pageCtx)
 		if err != nil {

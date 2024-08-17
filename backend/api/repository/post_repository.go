@@ -39,11 +39,16 @@ func (r *postRepositoryImpl) GetAll(ctx context.Context) ([]*entity.Post, error)
 			updated_date,
 			status_id
 		FROM posts
-		ORDER BY updated_date DESC
+		
 	`
 
 	limit := ctx.Value(appcontext.KeyLimit).(int64)
 	offset := ctx.Value(appcontext.KeyOffset).(int64)
+	statusID := ctx.Value(appcontext.KeyStatusID).(int64)
+	if statusID != 0 {
+		query += fmt.Sprintf(" WHERE status_id = %d", offset)
+	}
+	query += " ORDER BY updated_date DESC"
 	if limit != 0 {
 		query += fmt.Sprintf(" LIMIT %d", limit)
 	}
