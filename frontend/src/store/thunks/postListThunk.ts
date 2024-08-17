@@ -1,17 +1,22 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { APIResponse } from '../../types/api';
+import { APIResponse, Pagination } from '../../types/api';
 import { Post } from '../../types/post';
 
 export const fetchPosts = createAsyncThunk<
   Post[],
-  void,
+  Pagination | void,
   {
     rejectValue: string;
   }
 >(
   'fetchPosts',
-  async (_, { rejectWithValue }) => {
-    const apiUrl = `${import.meta.env.VITE_BASE_URL}/article`;
+  async (pagination, { rejectWithValue }) => {
+    let pages = ''
+    if (pagination) {
+      pages = `?limit=${pagination.limit}&offset=${pagination.offset}&status_id=${pagination.statusID}`
+    }
+    const apiUrl = `${import.meta.env.VITE_BASE_URL}/article${pages}`;
+
     try {
       const response = await fetch(apiUrl);
 

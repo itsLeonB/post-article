@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch } from '../../../hooks/useAppDispatch';
 import { useAppSelector } from '../../../hooks/useAppSelector';
 import { fetchPosts } from '../../../store/thunks/postListThunk';
@@ -11,15 +11,19 @@ import style from './style.module.css';
 export const Preview: React.FC = () => {
   const dispatch = useAppDispatch();
   const { data, status, error } = useAppSelector((state) => state.postList);
+  const [offset, setOffset] = useState(0);
 
-  const fetchPostsData = useCallback(() => {
-    dispatch(fetchPosts());
-  }, [dispatch]);
+  const fetchPostsData = useCallback(
+    (offset: number) => {
+      dispatch(fetchPosts({ limit: 5, offset: offset, statusID: 1 }));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     dispatch(resetStatus());
-    fetchPostsData();
-  }, [dispatch, fetchPostsData]);
+    fetchPostsData(offset);
+  }, [dispatch, offset]);
 
   if (status === 'loading') {
     return <Loader />;
@@ -29,20 +33,28 @@ export const Preview: React.FC = () => {
     return <PageError error={error} />;
   }
 
+  const handleNext = () => {
+    setOffset(offset + 5);
+  };
+
+  const handlePrevious = () => {
+    if (offset > 5) {
+      setOffset(offset - 5);
+    }
+  };
+
   return (
     <main className={style.main}>
-      {data
-        .filter((item) => {
-          return item.status_id === 1;
-        })
-        .map((post) => {
-          return (
-            <div key={post.id}>
-              <h3>{post.title}</h3>
-              <h4>{post.category}</h4>
-            </div>
-          );
-        })}
+      {data.map((post) => {
+        return (
+          <div key={post.id}>
+            <h3>{post.title}</h3>
+            <h4>{post.category}</h4>
+          </div>
+        );
+      })}
+      <button onClick={handlePrevious}>Previous</button>
+      <button onClick={handleNext}>Next</button>
     </main>
   );
 };

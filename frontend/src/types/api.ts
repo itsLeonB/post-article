@@ -9,3 +9,9 @@ interface APIError {
   message: string
   details: any
 }
+
+export interface Pagination {
+  limit: number
+  offset: number
+  statusID: number
+}
