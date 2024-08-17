@@ -29,7 +29,7 @@ func SetupHandlers(db *sql.DB) *handlers {
 func SetupRouter(handlers *handlers) http.Handler {
 	gin.SetMode(os.Getenv("APP_ENV"))
 	r := gin.Default()
-	r.Use(middleware.Error())
+	r.Use(middleware.Error(), middleware.CORS())
 
 	r.GET("/article", handlers.postHandler.GetAll())
 	r.GET("/article/:id", handlers.postHandler.GetByID())
