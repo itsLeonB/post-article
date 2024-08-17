@@ -8,6 +8,7 @@ import (
 
 type PostService interface {
 	GetAll(context.Context) ([]*dto.PostResponse, error)
+	GetByID(context.Context, int64) (*dto.PostResponse, error)
 }
 
 type postServiceImpl struct {
@@ -31,4 +32,13 @@ func (s *postServiceImpl) GetAll(ctx context.Context) ([]*dto.PostResponse, erro
 	}
 
 	return postResponses, nil
+}
+
+func (s *postServiceImpl) GetByID(ctx context.Context, id int64) (*dto.PostResponse, error) {
+	post, err := s.postRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return post.ToResponse(), nil
 }
